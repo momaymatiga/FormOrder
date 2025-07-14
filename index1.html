@@ -215,7 +215,8 @@
         
         input[type="text"],
         input[type="date"],
-        input[type="number"] {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -226,7 +227,7 @@
             font-family: 'Sarabun', Arial, sans-serif;
         }
         
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #ef4444;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
@@ -257,12 +258,11 @@
             font-size: 1em;
         }
         
-        /* ++ UPDATED ++ Reduced cell padding */
         td {
             padding: 8px 6px;
             border-bottom: 1px solid #dee2e6;
             text-align: center;
-            vertical-align: middle; /* Align content vertically */
+            vertical-align: middle; 
         }
         
         tr:nth-child(even) {
@@ -274,7 +274,7 @@
             transition: background 0.3s ease;
         }
         
-        .table-input {
+        .table-input, .table-input select {
             width: 100%;
             padding: 6px 4px;
             border: 1px solid #ddd;
@@ -353,6 +353,7 @@
             gap: 15px;
             justify-content: center;
             margin-top: 30px;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
         }
         
         .btn {
@@ -366,6 +367,16 @@
             font-family: 'Sarabun', Arial, sans-serif;
         }
         
+        /* ++ NEW ++ Submit Button */
+        .btn-submit {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(22, 163, 74, 0.3);
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
@@ -560,13 +571,13 @@
                     </div>
                     <div class="form-group">
                         <label for="branch">สาขา *</label>
-                        <input type="text" id="branch" name="branch" required>
+                        <input type="text" id="branch" name="branch" required onblur="lookupData('branch')">
                     </div>
                     <div class="form-group">
                         <label for="fcNumber">เลขที่ FC</label>
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <span style="padding: 12px 8px; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 8px 0 0 8px; font-weight: 600;">FC</span>
-                            <input type="text" id="fcNumber" name="fcNumber" style="border-radius: 0 8px 8px 0; flex: 1;" placeholder="001">
+                            <input type="text" id="fcNumber" name="fcNumber" style="border-radius: 0 8px 8px 0; flex: 1;" placeholder="001" onblur="lookupData('fc')">
                         </div>
                     </div>
                 </div>
@@ -609,7 +620,7 @@
                                 <td data-label="สั่งเข้า *"><input type="text" inputmode="numeric" class="table-input" name="order2" placeholder="0" oninput="formatNumber(this)"></td>
                                 <td data-label="หน่วยสินค้า *">
                                     <select class="table-input" name="unit2">
-                                         <option value="">เลือก</option>
+                                        <option value="">เลือก</option>
                                         <option value="Bulk-ถังใหญ่">Bulk-ถังใหญ่</option>
                                         <option value="Drum-ถังเล็ก">Drum-ถังเล็ก</option>
                                         <option value="Box-กล่อง">Box-กล่อง</option>
@@ -626,7 +637,7 @@
                                 <td data-label="สั่งเข้า *"><input type="text" inputmode="numeric" class="table-input" name="order3" placeholder="0" oninput="formatNumber(this)"></td>
                                 <td data-label="หน่วยสินค้า *">
                                     <select class="table-input" name="unit3">
-                                         <option value="">เลือก</option>
+                                        <option value="">เลือก</option>
                                         <option value="Bulk-ถังใหญ่">Bulk-ถังใหญ่</option>
                                         <option value="Drum-ถังเล็ก">Drum-ถังเล็ก</option>
                                         <option value="Box-กล่อง">Box-กล่อง</option>
@@ -643,7 +654,7 @@
                                 <td data-label="สั่งเข้า *"><input type="text" inputmode="numeric" class="table-input" name="order4" placeholder="0" oninput="formatNumber(this)"></td>
                                 <td data-label="หน่วยสินค้า *">
                                     <select class="table-input" name="unit4">
-                                         <option value="">เลือก</option>
+                                        <option value="">เลือก</option>
                                         <option value="Bulk-ถังใหญ่">Bulk-ถังใหญ่</option>
                                         <option value="Drum-ถังเล็ก">Drum-ถังเล็ก</option>
                                         <option value="Box-กล่อง">Box-กล่อง</option>
@@ -660,7 +671,7 @@
                                 <td data-label="สั่งเข้า *"><input type="text" inputmode="numeric" class="table-input" name="order5" placeholder="0" oninput="formatNumber(this)"></td>
                                 <td data-label="หน่วยสินค้า *">
                                     <select class="table-input" name="unit5">
-                                         <option value="">เลือก</option>
+                                        <option value="">เลือก</option>
                                         <option value="Bulk-ถังใหญ่">Bulk-ถังใหญ่</option>
                                         <option value="Drum-ถังเล็ก">Drum-ถังเล็ก</option>
                                         <option value="Box-กล่อง">Box-กล่อง</option>
@@ -710,6 +721,7 @@
                     <button type="button" class="btn btn-secondary" onclick="clearForm()">ล้างข้อมูล</button>
                     <button type="button" class="btn btn-preview" onclick="previewPDF()">ดูตัวอย่าง/ดาวน์โหลด</button>
                     <button type="button" class="btn btn-primary" onclick="generatePDF()">ดาวน์โหลดทันที</button>
+                    <button type="button" class="btn btn-submit" onclick="handleFormSubmit(event)">ส่งข้อมูลเข้าสู่ระบบ</button>
                 </div>
             </form>
         </div>
@@ -741,7 +753,6 @@
             return `${day}/${month}/${year}`;
         }
 
-        // ++ NEW ++ Function to format numbers with thousand separators
         function formatNumber(input) {
             let value = input.value.replace(/[^0-9]/g, '');
             if (value) {
@@ -868,7 +879,6 @@
 
             for (let i = 1; i <= 5; i++) {
                 const product = document.querySelector(`[name="product${i}"]`).value.trim();
-                // ++ UPDATED ++ Remove commas before validation
                 const orderValue = document.querySelector(`[name="order${i}"]`).value;
                 const order = orderValue.replace(/,/g, '');
                 
@@ -1131,6 +1141,87 @@
                     </div>
                 </div>
             `;
+        }
+
+        // ===================================================================
+        // ++ NEW ++ JAVASCRIPT FOR GOOGLE SHEETS INTEGRATION
+        // ===================================================================
+
+        async function handleFormSubmit(event) {
+            if(event) event.preventDefault(); 
+            
+            if (!validateRequiredFields()) {
+                return;
+            }
+
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbz88DoSBaRxtj8w_5f_G4atWa7O_DJfMefa-98mRV1onItf_7wUcQZZasiDMVPH8qSIbA/exec'; 
+            const form = document.getElementById('orderForm');
+            const formData = new FormData(form);
+            
+            // Un-format numbers before sending
+            const numberInputs = form.querySelectorAll('input[oninput="formatNumber(this)"]');
+            numberInputs.forEach(input => {
+                const unformattedValue = input.value.replace(/,/g, '');
+                formData.set(input.name, unformattedValue);
+            });
+
+            // Disable submit button to prevent double-clicking
+            const submitButton = event.target;
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังส่ง...';
+
+            try {
+                const response = await fetch(scriptURL, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    alert('ส่งข้อมูลเข้าสู่ระบบสำเร็จ!');
+                    clearForm(); 
+                } else {
+                    throw new Error(result.message || 'เกิดข้อผิดพลาดในการส่งข้อมูล');
+                }
+            } catch (error) {
+                console.error('Error!', error.message);
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            } finally {
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.textContent = 'ส่งข้อมูลเข้าสู่ระบบ';
+            }
+        }
+
+        async function lookupData(sourceField) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbz88DoSBaRxtj8w_5f_G4atWa7O_DJfMefa-98mRV1onItf_7wUcQZZasiDMVPH8qSIbA/exec';
+            
+            let searchValue;
+            let lookupURL;
+
+            if (sourceField === 'branch') {
+                searchValue = document.getElementById('branch').value;
+                if (!searchValue) return; 
+                lookupURL = `${scriptURL}?branch=${encodeURIComponent(searchValue)}`;
+            } else if (sourceField === 'fc') {
+                searchValue = document.getElementById('fcNumber').value;
+                if (!searchValue) return;
+                lookupURL = `${scriptURL}?fc=${encodeURIComponent(searchValue)}`;
+            } else {
+                return;
+            }
+            
+            try {
+                const response = await fetch(lookupURL); 
+                const res = await response.json();
+
+                if (res.result === 'success') {
+                    document.getElementById('customerName').value = res.data.company;
+                    document.getElementById('branch').value = res.data.branch;
+                    document.getElementById('fcNumber').value = res.data.fc;
+                } else {
+                    console.log('ไม่พบข้อมูลที่ตรงกัน');
+                }
+            } catch (error) {
+                console.error('Lookup Error!', error);
+            }
         }
     </script>
 </body>
