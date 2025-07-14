@@ -216,6 +216,7 @@
         input[type="text"],
         input[type="date"],
         input[type="number"],
+        input[type="email"],
         select {
             width: 100%;
             padding: 12px 15px;
@@ -353,6 +354,7 @@
             gap: 15px;
             justify-content: center;
             margin-top: 30px;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -366,6 +368,15 @@
             font-family: 'Sarabun', Arial, sans-serif;
         }
         
+        .btn-submit {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(22, 163, 74, 0.3);
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
@@ -427,8 +438,7 @@
                 margin: 1% auto;
                 padding: 15px;
             }
-
-            /* === Responsive Table Styles START === */
+            
             .table-container {
                 margin-bottom: 0;
             }
@@ -526,7 +536,6 @@
                 width: 100%;
                 min-height: 80px;
             }
-            /* === Responsive Table Styles END === */
         }
     </style>
 </head>
@@ -571,6 +580,8 @@
                     </div>
                 </div>
                 
+                <input type="hidden" id="salespersonEmail" name="salespersonEmail">
+
                 <div class="table-container">
                     <table>
                         <thead>
@@ -689,6 +700,10 @@
                         <input type="text" id="ordererName" name="ordererName" required>
                     </div>
                     <div class="form-group">
+                        <label for="ordererEmail">อีเมลผู้สั่ง (สำหรับรับสำเนา)</label>
+                        <input type="email" id="ordererEmail" name="ordererEmail" placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
                         <label for="phoneNumber">เบอร์โทรศัพท์ *</label>
                         <input type="text" id="phoneNumber" name="phoneNumber" placeholder="0812345678" required maxlength="10" oninput="validatePhoneNumber(this)">
                     </div>
@@ -710,6 +725,7 @@
                     <button type="button" class="btn btn-secondary" onclick="clearForm()">ล้างข้อมูล</button>
                     <button type="button" class="btn btn-preview" onclick="previewPDF()">ดูตัวอย่าง/ดาวน์โหลด</button>
                     <button type="button" class="btn btn-primary" onclick="generatePDF()">ดาวน์โหลดทันที</button>
+                    <button type="button" class="btn btn-submit" onclick="handleFormSubmit(event)">ยืนยันการสั่งซื้อ</button>
                 </div>
             </form>
         </div>
@@ -1160,13 +1176,52 @@
                     document.getElementById('customerName').value = res.data.company;
                     document.getElementById('branch').value = res.data.branch;
                     document.getElementById('fcNumber').value = res.data.fc;
+                    document.getElementById('salespersonEmail').value = res.data.salespersonEmail || '';
                 } else {
-                    // This else block can be empty if you don't want any action on 'not_found'
                     console.log('Data not found for term:', searchValue);
                 }
             } catch (error) {
                 console.error('Lookup Error!', error);
                 alert('เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อค้นหาข้อมูล');
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            if(event) event.preventDefault(); 
+            
+            if (!validateRequiredFields()) {
+                return;
+            }
+
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbz88DoSBaRxtj8w_5f_G4atWa7O_DJfMefa-98mRV1onItf_7wUcQZZasiDMVPH8qSIbA/exec'; 
+            const form = document.getElementById('orderForm');
+            const formData = new FormData(form);
+            
+            const numberInputs = form.querySelectorAll('input[oninput="formatNumber(this)"]');
+            numberInputs.forEach(input => {
+                const unformattedValue = input.value.replace(/,/g, '');
+                formData.set(input.name, unformattedValue);
+            });
+
+            const submitButton = event.target;
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังส่ง...';
+
+            try {
+                const response = await fetch(scriptURL, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    alert('สั่งซื้อสำเร็จ! ระบบได้ส่งอีเมลยืนยันแล้ว');
+                    clearForm(); 
+                } else {
+                    throw new Error(result.message || 'เกิดข้อผิดพลาดในการส่งข้อมูล');
+                }
+            } catch (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'ยืนยันการสั่งซื้อ';
             }
         }
     </script>
